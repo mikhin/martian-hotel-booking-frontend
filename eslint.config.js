@@ -6,7 +6,12 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  globalIgnores([
+    "dist",
+    "src/client/client/client.gen.ts",
+    "src/client/core/bodySerializer.gen.ts",
+    "src/client/core/serverSentEvents.gen.ts",
+  ]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [
