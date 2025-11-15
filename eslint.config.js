@@ -8,9 +8,9 @@ import { defineConfig, globalIgnores } from "eslint/config";
 export default defineConfig([
   globalIgnores([
     "dist",
-    "src/client/client/client.gen.ts",
-    "src/client/core/bodySerializer.gen.ts",
-    "src/client/core/serverSentEvents.gen.ts",
+    "src/api/client/client.gen.ts",
+    "src/api/core/bodySerializer.gen.ts",
+    "src/api/core/serverSentEvents.gen.ts",
   ]),
   {
     files: ["**/*.{ts,tsx}"],
