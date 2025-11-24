@@ -1,7 +1,8 @@
 import { atom } from "nanostores";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { type ApiFunction, createApiStore } from "./api-store";
+import { createApiStore } from "./api-store";
+import type { RequestResult, Options, TDataShape as ClientTDataShape } from "@/api/client";
 
 describe("createApiStore", () => {
   beforeEach(() => {
@@ -14,17 +15,16 @@ describe("createApiStore", () => {
     vi.useRealTimers();
   });
 
-  const createMockFetcher = <T>(
-    mockData?: T,
-    mockError?: Error,
-  ): ApiFunction<T, { url: string }, unknown> => {
+  const createMockFetcher = <T>(mockData?: T, mockError?: Error) => {
     return vi.fn().mockImplementation(async () => {
       if (mockError) {
         throw mockError;
       }
 
-      return Promise.resolve(mockData);
-    });
+      return Promise.resolve({ data: mockData });
+    }) as <ThrowOnError extends boolean = false>(
+      options?: Options<ClientTDataShape, ThrowOnError>,
+    ) => RequestResult<{ 200: T }, unknown, ThrowOnError, "fields">;
   };
 
   describe("Store Creation", () => {
@@ -32,12 +32,10 @@ describe("createApiStore", () => {
       const mockData = { url: "https://test.com" };
       const mockFetcher = createMockFetcher(mockData);
 
-      const store = createApiStore<unknown, typeof mockData, unknown>(
-        mockFetcher,
-        {
-          storeKey: "test",
-        },
-      );
+      const store = createApiStore(mockFetcher, {
+        storeKey: "test",
+        mapToOptions: () => ({}),
+      });
 
       expect(store).toBeDefined();
       expect(typeof store.get).toBe("function");
@@ -51,14 +49,11 @@ describe("createApiStore", () => {
         path: { id: "123" },
       });
 
-      const store = createApiStore<unknown, typeof mockData, unknown>(
-        mockFetcher,
-        {
-          mapToOptions,
-          params: ["123"],
-          storeKey: "test",
-        },
-      );
+      const store = createApiStore(mockFetcher, {
+        mapToOptions,
+        params: ["123"],
+        storeKey: "test",
+      });
 
       store.subscribe(() => {})();
 
@@ -74,6 +69,7 @@ describe("createApiStore", () => {
       const store = createApiStore(mockFetcher, {
         params: [$param],
         storeKey: "test",
+        mapToOptions: () => ({}),
       });
 
       store.subscribe(() => {})();
@@ -117,6 +113,7 @@ describe("createApiStore", () => {
       const mockData = { test: "data" };
       const store = createApiStore(createMockFetcher(mockData), {
         storeKey: "fetch-test",
+        mapToOptions: () => ({}),
       });
 
       const subscription = vi.fn();
