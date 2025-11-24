@@ -19,6 +19,14 @@ type ExtractResponseData<TResponses> = TResponses extends { 200: infer TData }
   ? TData
   : TResponses;
 
+// Infer the TResponses type from the fetcher function's return type
+type InferResponses<F> = F extends (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ...args: any[]
+) => Promise<{ data?: infer TResponses }>
+  ? TResponses
+  : never;
+
 // Convert param tuple to string tuple type
 type ParamsTuple<T extends readonly ParamValue[]> = {
   [K in keyof T]: string;
@@ -42,15 +50,15 @@ export type ApiStore<T> = FetcherStore<T>;
 // Main createApiStore function with type inference
 export function createApiStore<
   TDataShape extends ClientTDataShape,
-  TResponses,
+  F extends (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...args: any[]
+  ) => Promise<{ data?: unknown }>,
   TParams extends readonly ParamValue[] = readonly [],
 >(
-  // Accept any function that returns a RequestResult-like structure
-  // Type inference works on the actual function passed
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fetcher: (...args: any[]) => Promise<{ data?: any }>,
+  fetcher: F,
   config: StoreConfig<TDataShape, TParams>,
-): ApiStore<ExtractResponseData<TResponses>> {
+): ApiStore<ExtractResponseData<InferResponses<F>>> {
   const storeParams: KeyInput = [
     config.storeKey,
     ...(config.params?.map((param) => {
@@ -84,5 +92,5 @@ export function createApiStore<
     },
     onErrorRetry: false,
     revalidateInterval: config.revalidateInterval,
-  }) as ApiStore<ExtractResponseData<TResponses>>;
+  }) as ApiStore<ExtractResponseData<InferResponses<F>>>;
 }

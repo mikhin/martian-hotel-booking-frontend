@@ -1,7 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { $hotels } from "@/stores/hotels.ts";
 
-export function App() {
+export default function App() {
   const { data, error, loading } = useStore($hotels);
 
   if (loading) {
@@ -17,7 +17,7 @@ export function App() {
       {data?.items.map((hotel) => (
         <div key={hotel.id}>
           <h2>{hotel.name}</h2>
-          <p>{hotel.description}</p>
+          <p>{hotel.location}</p>
         </div>
       ))}
     </div>
