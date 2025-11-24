@@ -39,7 +39,7 @@ export type StoreConfig<
 // API Store type
 export type ApiStore<T> = FetcherStore<T>;
 
-// Main createApiStore function with type inference  
+// Main createApiStore function with type inference
 export function createApiStore<
   TDataShape extends ClientTDataShape,
   TResponses,

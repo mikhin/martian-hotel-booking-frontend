@@ -2,7 +2,11 @@ import { atom } from "nanostores";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createApiStore } from "./api-store";
-import type { RequestResult, Options, TDataShape as ClientTDataShape } from "@/api/client";
+import type {
+  RequestResult,
+  Options,
+  TDataShape as ClientTDataShape,
+} from "@/api/client";
 
 describe("createApiStore", () => {
   beforeEach(() => {
