@@ -2,10 +2,22 @@ import { useStore } from "@nanostores/react";
 import { $hotels } from "@/stores/hotels.ts";
 import { $router } from "@/stores/router.ts";
 import { HotelForm } from "./HotelForm";
+import { useEffect } from "react";
+import { client } from "./api/client.gen";
+import { getAppConfig } from "@/config/app.config.ts";
+
+const appConfig = getAppConfig();
 
 export function App() {
   const router = useStore($router);
   const { data, error, loading } = useStore($hotels);
+
+  useEffect(() => {
+    client.setConfig({
+      baseUrl: appConfig.backendUrl,
+      throwOnError: true,
+    });
+  }, []);
 
   if (router?.route === "hotelEdit") {
     return (
