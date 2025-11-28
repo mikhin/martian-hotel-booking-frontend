@@ -52,40 +52,21 @@ export type Options<
  */
 export const getHotels = <ThrowOnError extends boolean = false>(
   options: Options<GetHotelsData, ThrowOnError>,
-) => {
-  return (options.client ?? client).get<
-    GetHotelsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
+) =>
+  (options.client ?? client).get<GetHotelsResponses, unknown, ThrowOnError>({
+    security: [{ scheme: "bearer", type: "http" }],
     url: "/hotels",
     ...options,
   });
-};
 
 /**
  * Create a new hotel
  */
 export const createHotel = <ThrowOnError extends boolean = false>(
   options: Options<CreateHotelData, ThrowOnError>,
-) => {
-  return (options.client ?? client).post<
-    CreateHotelResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
+) =>
+  (options.client ?? client).post<CreateHotelResponses, unknown, ThrowOnError>({
+    security: [{ scheme: "bearer", type: "http" }],
     url: "/hotels",
     ...options,
     headers: {
@@ -93,69 +74,47 @@ export const createHotel = <ThrowOnError extends boolean = false>(
       ...options.headers,
     },
   });
-};
 
 /**
  * Delete a hotel
  */
 export const deleteHotel = <ThrowOnError extends boolean = false>(
   options: Options<DeleteHotelData, ThrowOnError>,
-) => {
-  return (options.client ?? client).delete<
+) =>
+  (options.client ?? client).delete<
     DeleteHotelResponses,
     unknown,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
+    security: [{ scheme: "bearer", type: "http" }],
     url: "/hotels/{id}",
     ...options,
   });
-};
 
 /**
  * Get a hotel by ID
  */
 export const getHotelById = <ThrowOnError extends boolean = false>(
   options: Options<GetHotelByIdData, ThrowOnError>,
-) => {
-  return (options.client ?? client).get<
+) =>
+  (options.client ?? client).get<
     GetHotelByIdResponses,
     GetHotelByIdErrors,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
+    security: [{ scheme: "bearer", type: "http" }],
     url: "/hotels/{id}",
     ...options,
   });
-};
 
 /**
  * Update a hotel
  */
 export const updateHotel = <ThrowOnError extends boolean = false>(
   options: Options<UpdateHotelData, ThrowOnError>,
-) => {
-  return (options.client ?? client).put<
-    UpdateHotelResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
+) =>
+  (options.client ?? client).put<UpdateHotelResponses, unknown, ThrowOnError>({
+    security: [{ scheme: "bearer", type: "http" }],
     url: "/hotels/{id}",
     ...options,
     headers: {
@@ -163,47 +122,31 @@ export const updateHotel = <ThrowOnError extends boolean = false>(
       ...options.headers,
     },
   });
-};
 
 /**
  * Get all bookings
  */
 export const getBookings = <ThrowOnError extends boolean = false>(
   options: Options<GetBookingsData, ThrowOnError>,
-) => {
-  return (options.client ?? client).get<
-    GetBookingsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
+) =>
+  (options.client ?? client).get<GetBookingsResponses, unknown, ThrowOnError>({
+    security: [{ scheme: "bearer", type: "http" }],
     url: "/bookings",
     ...options,
   });
-};
 
 /**
  * Create a new booking
  */
 export const createBooking = <ThrowOnError extends boolean = false>(
   options: Options<CreateBookingData, ThrowOnError>,
-) => {
-  return (options.client ?? client).post<
+) =>
+  (options.client ?? client).post<
     CreateBookingResponses,
     CreateBookingErrors,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
+    security: [{ scheme: "bearer", type: "http" }],
     url: "/bookings",
     ...options,
     headers: {
@@ -211,89 +154,64 @@ export const createBooking = <ThrowOnError extends boolean = false>(
       ...options.headers,
     },
   });
-};
 
 /**
  * Delete a booking
  */
 export const deleteBooking = <ThrowOnError extends boolean = false>(
   options: Options<DeleteBookingData, ThrowOnError>,
-) => {
-  return (options.client ?? client).delete<
+) =>
+  (options.client ?? client).delete<
     DeleteBookingResponses,
     unknown,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
+    security: [{ scheme: "bearer", type: "http" }],
     url: "/bookings/{id}",
     ...options,
   });
-};
 
 /**
  * Get a booking by ID
  */
 export const getBookingById = <ThrowOnError extends boolean = false>(
   options: Options<GetBookingByIdData, ThrowOnError>,
-) => {
-  return (options.client ?? client).get<
+) =>
+  (options.client ?? client).get<
     GetBookingByIdResponses,
     unknown,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
+    security: [{ scheme: "bearer", type: "http" }],
     url: "/bookings/{id}",
     ...options,
   });
-};
 
 /**
  * Update a booking
  */
 export const updateBooking = <ThrowOnError extends boolean = false>(
   options: Options<UpdateBookingData, ThrowOnError>,
-) => {
-  return (options.client ?? client).put<
-    UpdateBookingResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
+) =>
+  (options.client ?? client).put<UpdateBookingResponses, unknown, ThrowOnError>(
+    {
+      security: [{ scheme: "bearer", type: "http" }],
+      url: "/bookings/{id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
       },
-    ],
-    url: "/bookings/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
     },
-  });
-};
+  );
 
 /**
  * Authenticate user
  */
 export const login = <ThrowOnError extends boolean = false>(
   options: Options<LoginData, ThrowOnError>,
-) => {
-  return (options.client ?? client).post<
-    LoginResponses,
-    LoginErrors,
-    ThrowOnError
-  >({
+) =>
+  (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
     url: "/auth/login",
     ...options,
     headers: {
@@ -301,4 +219,3 @@ export const login = <ThrowOnError extends boolean = false>(
       ...options.headers,
     },
   });
-};

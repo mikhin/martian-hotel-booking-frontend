@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
-    "@hey-api/openapi-ts": "0.87.4",
+    "@hey-api/openapi-ts": "0.88.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^24.10.1",

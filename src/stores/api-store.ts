@@ -6,20 +6,17 @@ import {
 } from "@nanostores/query";
 import { type ReadableAtom } from "nanostores";
 
-import type { Options } from "@/api/sdk.gen";
 import type { TDataShape as ClientTDataShape } from "@/api/client";
+import type { Options } from "@/api/sdk.gen";
 
 const [createFetcherStore] = nanoquery({});
 
-// Type-safe parameter definition
 type ParamValue = ReadableAtom<string | number | null> | string | number;
 
-// Extract response data from a Responses type (200 status code)
 type ExtractResponseData<TResponses> = TResponses extends { 200: infer TData }
   ? TData
   : TResponses;
 
-// Infer the TResponses type from the fetcher function's return type
 type InferResponses<F> = F extends (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ...args: any[]
@@ -27,12 +24,10 @@ type InferResponses<F> = F extends (
   ? TResponses
   : never;
 
-// Convert param tuple to string tuple type
 type ParamsTuple<T extends readonly ParamValue[]> = {
   [K in keyof T]: string;
 };
 
-// Configuration for creating an API store
 export type StoreConfig<
   TDataShape extends ClientTDataShape,
   TParams extends readonly ParamValue[],
@@ -44,10 +39,8 @@ export type StoreConfig<
     : (params: ParamsTuple<TParams>) => Options<TDataShape, false>;
 } & CommonSettings;
 
-// API Store type
 export type ApiStore<T> = FetcherStore<T>;
 
-// Main createApiStore function with type inference
 export function createApiStore<
   TDataShape extends ClientTDataShape,
   F extends (
@@ -65,6 +58,7 @@ export function createApiStore<
       if (typeof param === "string" || typeof param === "number") {
         return param;
       }
+
       return param;
     }) ?? []),
   ];
