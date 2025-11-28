@@ -1,10 +1,17 @@
 import { fromOpenApi } from "@msw/source/open-api";
 import { http, HttpResponse, type RequestHandler } from "msw";
-
-import type { Hotel, HotelUpsert, GetHotelsResponse } from "@/api/types.gen";
-import { getAppConfig } from "@/config/app.config.ts";
-
 import { nanoid } from "nanoid";
+
+import type {
+  Hotel,
+  HotelUpsert,
+  GetHotelsResponse,
+  GetHotelsData,
+  GetHotelByIdData,
+  CreateHotelData,
+  UpdateHotelData,
+} from "@/api/types.gen";
+import { getAppConfig } from "@/config/app.config.ts";
 
 const appConfig = getAppConfig();
 
@@ -26,35 +33,38 @@ const mockHotels: Hotel[] = [
 ];
 
 const hotelHandlers: RequestHandler[] = [
-  http.get(`${appConfig.backendUrl}/hotels`, ({ request }) => {
-    const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get("page") || "1");
-    const pageSize = parseInt(url.searchParams.get("pageSize") || "10");
-    const start = (page - 1) * pageSize;
+  http.get<never, never, GetHotelsResponse>(
+    `${appConfig.backendUrl}${"/hotels" satisfies GetHotelsData["url"]}`,
+    ({ request }) => {
+      const url = new URL(request.url);
+      const page = parseInt(url.searchParams.get("page") || "1");
+      const pageSize = parseInt(url.searchParams.get("pageSize") || "10");
+      const start = (page - 1) * pageSize;
 
-    const response: GetHotelsResponse = {
-      items: mockHotels.slice(start, start + pageSize),
-      totalItems: mockHotels.length,
-      totalPages: Math.ceil(mockHotels.length / pageSize),
-      currentPage: page,
-      pageSize,
-    };
+      const response: GetHotelsResponse = {
+        items: mockHotels.slice(start, start + pageSize),
+        totalItems: mockHotels.length,
+        totalPages: Math.ceil(mockHotels.length / pageSize),
+        currentPage: page,
+        pageSize,
+      };
 
-    return HttpResponse.json(response);
-  }),
+      return HttpResponse.json(response);
+    },
+  ),
 
-  http.get<{ id: string }>(
+  http.get<GetHotelByIdData["path"]>(
     `${appConfig.backendUrl}/hotels/:id`,
     ({ params }) => {
       const hotel = mockHotels.find((h) => h.id === params.id);
       return hotel
         ? HttpResponse.json(hotel)
-        : HttpResponse.json({ message: "Not found" }, { status: 404 });
+        : new HttpResponse(null, { status: 404 });
     },
   ),
 
-  http.post<never, HotelUpsert>(
-    `${appConfig.backendUrl}/hotels`,
+  http.post<never, HotelUpsert, Hotel>(
+    `${appConfig.backendUrl}${"/hotels" satisfies CreateHotelData["url"]}`,
     async ({ request }) => {
       const body = await request.json();
       const newHotel: Hotel = {
@@ -67,13 +77,12 @@ const hotelHandlers: RequestHandler[] = [
     },
   ),
 
-  http.put<{ id: string }, HotelUpsert>(
+  http.put<UpdateHotelData["path"], HotelUpsert, Hotel>(
     `${appConfig.backendUrl}/hotels/:id`,
     async ({ params, request }) => {
       const body = await request.json();
       const index = mockHotels.findIndex((h) => h.id === params.id);
-      if (index === -1)
-        return HttpResponse.json({ message: "Not found" }, { status: 404 });
+      if (index === -1) return new HttpResponse(null, { status: 404 });
 
       mockHotels[index] = { ...mockHotels[index], ...body };
       return HttpResponse.json(mockHotels[index]);
