@@ -3,7 +3,7 @@ import { $hotels } from "@/stores/hotels.ts";
 import { $router } from "@/stores/router.ts";
 import { HotelForm } from "./HotelForm";
 
-export default function App() {
+export function App() {
   const router = useStore($router);
   const { data, error, loading } = useStore($hotels);
 
