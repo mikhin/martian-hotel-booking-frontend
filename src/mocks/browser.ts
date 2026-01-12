@@ -1,7 +1,5 @@
 import { setupWorker } from "msw/browser";
 
-import { getHandlers } from "./handlers";
+import { hotelHandlers } from "./handlers";
 
-const resolvedHandlers = await getHandlers();
-
-export const worker = setupWorker(...resolvedHandlers);
+export const worker = setupWorker(...hotelHandlers);
