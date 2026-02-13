@@ -6,82 +6,93 @@ import {
 } from "@nanostores/query";
 import { type ReadableAtom } from "nanostores";
 
-import type { RequestResult } from "@/api/client";
 import type { Options } from "@/api/sdk.gen";
 
 const [createFetcherStore] = nanoquery({});
 
-export type DataShape = {
-  body?: unknown;
-  headers?: Record<string, string>;
-  path?: Record<string, string>;
-  query?: Record<string, unknown>;
-  url: string;
-};
-
-export type ApiFunctionWithOptionalOptions<
-  T,
-  TData extends DataShape,
-  TError = unknown,
-> = <ThrowOnError extends boolean = false>(
-  options?: Options<TData, ThrowOnError>,
-) => RequestResult<T | undefined, TError, ThrowOnError>;
-
-export type ApiFunctionWithRequiredOptions<
-  T,
-  TData extends DataShape,
-  TError = unknown,
-> = <ThrowOnError extends boolean = false>(
-  options: Options<TData, ThrowOnError>,
-) => RequestResult<T, TError, ThrowOnError>;
-
-export type ApiFunction<T, TData extends DataShape, TError = unknown> =
-  | ApiFunctionWithOptionalOptions<T, TData, TError>
-  | ApiFunctionWithRequiredOptions<T, TData, TError>;
-
-export type StoreConfig<TData extends DataShape> = {
-  mapToOptions?: (params: string[]) => Options<TData, false>;
-  params?: Array<
-    number | ReadableAtom<null | number | string | boolean> | string
-  >;
-  storeKey: string;
-} & CommonSettings;
-
 export type ApiStore<T> = FetcherStore<T>;
 
-export const createApiStore = <T, TData extends DataShape, TError = unknown>(
-  fetcher: ApiFunction<T, TData, TError>,
-  config: StoreConfig<TData>,
-): ApiStore<T> => {
-  const storeParams: KeyInput = [
-    config.storeKey,
-    ...(config.params?.map((param) => {
-      if (typeof param === "string" || typeof param === "number") {
-        return param;
-      }
+export type StoreConfig<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  F extends (...args: any[]) => any,
+  TParams extends readonly ParamValue[],
+> = CommonSettings & {
+  mapToOptions?: TParams extends readonly []
+    ? () => Options<ExtractOptionsData<F>, false>
+    : (params: ParamsTuple<TParams>) => Options<ExtractOptionsData<F>, false>;
+  params?: TParams;
+  storeKey: string;
+};
 
-      return param as ReadableAtom<null | number | string>;
-    }) || []),
-  ];
+type ExtractOptionsData<F> = F extends (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options?: Options<infer TData, any>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+) => any
+  ? TData
+  : F extends (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        options: Options<infer TData, any>,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ) => any
+    ? TData
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      any;
 
-  return createFetcherStore<T>(storeParams, {
-    fetcher: async (...fetchParams) => {
+type ExtractResponseData<TResponses> = TResponses extends { 200: infer TData }
+  ? TData
+  : TResponses;
+
+type InferResponses<F> = F extends (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ...args: any[]
+) => Promise<{ data?: infer TResponses }>
+  ? TResponses
+  : never;
+
+type ParamsTuple<T extends readonly ParamValue[]> = {
+  [K in keyof T]: string;
+};
+
+type ParamValue = number | ReadableAtom<null | number | string> | string;
+
+export function createApiStore<
+  F extends (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...args: any[]
+  ) => Promise<{ data?: unknown }>,
+  TParams extends readonly ParamValue[] = readonly [],
+>(
+  fetcher: F,
+  config: StoreConfig<F, TParams>,
+): ApiStore<ExtractResponseData<InferResponses<F>>> {
+  const storeParams: KeyInput = [config.storeKey, ...(config.params ?? [])];
+
+  return createFetcherStore(storeParams, {
+    cacheLifetime: config.cacheLifetime,
+    dedupeTime: config.dedupeTime,
+    fetcher: async (...fetchParams: unknown[]) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, ...queryParams] = fetchParams;
       const mappedParams = queryParams.map(String);
-      const options = config.mapToOptions
-        ? config.mapToOptions(mappedParams)
-        : ({} as Options<TData, false>);
 
-      const result = await fetcher({ ...options, throwOnError: true });
+      const options = config.mapToOptions
+        ? config.mapToOptions(mappedParams as never)
+        : {};
+
+      const result = await fetcher({
+        ...options,
+        throwOnError: true,
+      } as never);
 
       if (result.data === undefined) {
         throw new Error("No data received");
       }
 
-      return result.data as T;
+      return result.data;
     },
     onErrorRetry: false,
     revalidateInterval: config.revalidateInterval,
-  });
-};
+    revalidateOnFocus: false,
+  }) as ApiStore<ExtractResponseData<InferResponses<F>>>;
+}
