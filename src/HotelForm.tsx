@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 
 import { createHotel, type HotelUpsert, updateHotel } from "@/api";
 import { zHotelUpsert } from "@/api/zod.gen";
+import { isValidationError } from "@/lib/is-validation-error";
 import { $hotelContent, $hotels } from "@/stores/hotels";
 import { $router } from "@/stores/router";
 
@@ -57,20 +58,17 @@ export function HotelForm() {
     } catch (error) {
       console.error(error);
 
-      if (
-        error instanceof Error &&
-        "errors" in error &&
-        typeof (error as Record<string, unknown>).errors === "object"
-      ) {
-        const validationErrors = (error as { errors: Record<string, string> })
-          .errors;
+      if (isValidationError(error)) {
+        const { errors } = error;
 
-        Object.entries(validationErrors).forEach(([field, message]) => {
-          form.setError(field as keyof HotelUpsert, {
-            type: "server",
-            message,
+        if (errors) {
+          Object.entries(errors).forEach(([fieldName, errorMessage]) => {
+            form.setError(fieldName as keyof HotelUpsert, {
+              message: errorMessage,
+              type: "server",
+            });
           });
-        });
+        }
       }
 
       alert("Failed to save hotel");
