@@ -62,9 +62,8 @@ export function HotelForm() {
         "errors" in error &&
         typeof (error as Record<string, unknown>).errors === "object"
       ) {
-        const validationErrors = (
-          error as { errors: Record<string, string> }
-        ).errors;
+        const validationErrors = (error as { errors: Record<string, string> })
+          .errors;
 
         Object.entries(validationErrors).forEach(([field, message]) => {
           form.setError(field as keyof HotelUpsert, {
