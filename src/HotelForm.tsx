@@ -2,14 +2,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useStore } from "@nanostores/react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { z } from "zod";
 
-import { createHotel, updateHotel } from "@/api";
+import { createHotel, type HotelUpsert, updateHotel } from "@/api";
 import { zHotelUpsert } from "@/api/zod.gen";
 import { $hotelContent, $hotels } from "@/stores/hotels";
 import { $router } from "@/stores/router";
-
-type HotelFormValues = z.infer<typeof zHotelUpsert>;
 
 export function HotelForm() {
   const router = useStore($router);
@@ -19,7 +16,7 @@ export function HotelForm() {
   const isEditMode = router?.route === "hotelEdit";
   const hotelId = isEditMode ? router.params.id : undefined;
 
-  const form = useForm<HotelFormValues>({
+  const form = useForm<HotelUpsert>({
     defaultValues: {
       name: undefined,
       location: undefined,
@@ -38,7 +35,7 @@ export function HotelForm() {
     }
   }, [hotelData?.data, form]);
 
-  const onSubmit = async (data: HotelFormValues) => {
+  const onSubmit = async (data: HotelUpsert) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 

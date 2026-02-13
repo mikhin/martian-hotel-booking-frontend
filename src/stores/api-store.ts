@@ -11,7 +11,18 @@ import type { Options } from "@/api/sdk.gen";
 
 const [createFetcherStore] = nanoquery({});
 
-type ParamValue = ReadableAtom<string | number | null> | string | number;
+export type StoreConfig<
+  TDataShape extends ClientTDataShape,
+  TParams extends readonly ParamValue[],
+> = CommonSettings & {
+  mapToOptions?: TParams extends readonly []
+    ? () => Options<TDataShape, false>
+    : (params: ParamsTuple<TParams>) => Options<TDataShape, false>;
+  params?: TParams;
+  storeKey: string;
+};
+
+type ApiStore<T> = FetcherStore<T>;
 
 type ExtractResponseData<TResponses> = TResponses extends { 200: infer TData }
   ? TData
@@ -28,18 +39,7 @@ type ParamsTuple<T extends readonly ParamValue[]> = {
   [K in keyof T]: string;
 };
 
-export type StoreConfig<
-  TDataShape extends ClientTDataShape,
-  TParams extends readonly ParamValue[],
-> = {
-  storeKey: string;
-  params?: TParams;
-  mapToOptions?: TParams extends readonly []
-    ? () => Options<TDataShape, false>
-    : (params: ParamsTuple<TParams>) => Options<TDataShape, false>;
-} & CommonSettings;
-
-export type ApiStore<T> = FetcherStore<T>;
+type ParamValue = number | ReadableAtom<null | number | string> | string;
 
 export function createApiStore<
   TDataShape extends ClientTDataShape,
@@ -52,18 +52,11 @@ export function createApiStore<
   fetcher: F,
   config: StoreConfig<TDataShape, TParams>,
 ): ApiStore<ExtractResponseData<InferResponses<F>>> {
-  const storeParams: KeyInput = [
-    config.storeKey,
-    ...(config.params?.map((param) => {
-      if (typeof param === "string" || typeof param === "number") {
-        return param;
-      }
-
-      return param;
-    }) ?? []),
-  ];
+  const storeParams: KeyInput = [config.storeKey, ...(config.params ?? [])];
 
   return createFetcherStore(storeParams, {
+    cacheLifetime: config.cacheLifetime,
+    dedupeTime: config.dedupeTime,
     fetcher: async (...fetchParams: unknown[]) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, ...queryParams] = fetchParams;
@@ -86,5 +79,6 @@ export function createApiStore<
     },
     onErrorRetry: false,
     revalidateInterval: config.revalidateInterval,
+    revalidateOnFocus: false,
   }) as ApiStore<ExtractResponseData<InferResponses<F>>>;
 }

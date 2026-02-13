@@ -1,22 +1,35 @@
-import { http, HttpResponse, type RequestHandler } from "msw";
+import { http, HttpResponse } from "msw";
 import { nanoid } from "nanoid";
 
 import type {
-  Hotel,
-  HotelUpsert,
-  GetHotelsResponse,
-  GetHotelsData,
-  GetHotelByIdData,
   CreateHotelData,
-  UpdateHotelData,
+  CreateHotelResponse,
   DeleteHotelData,
+  GetHotelByIdData,
+  GetHotelByIdResponse,
+  GetHotelsData,
+  GetHotelsResponse,
+  Hotel,
+  UpdateHotelData,
+  UpdateHotelResponse,
 } from "@/api/types.gen";
-import { getAppConfig } from "@/config/app.config.ts";
+import { getAppConfig } from "@/config/app.config";
+
+import type { MswPath } from "./types";
+import { randomDelay } from "./utils";
 
 const appConfig = getAppConfig();
 
+const PATHS = {
+  hotelById: "/hotels/:id" satisfies MswPath<GetHotelByIdData["url"]> &
+    MswPath<UpdateHotelData["url"]> &
+    MswPath<DeleteHotelData["url"]>,
+  hotels: "/hotels" satisfies MswPath<GetHotelsData["url"]> &
+    MswPath<CreateHotelData["url"]>,
+} as const;
+
 const initializeMockHotels = (): Hotel[] => {
-  const hotels: Hotel[] = [
+  return [
     {
       id: nanoid(),
       name: "Olympus Mons Resort",
@@ -32,85 +45,118 @@ const initializeMockHotels = (): Hotel[] => {
       createdAt: new Date().toISOString(),
     },
   ];
-
-  return hotels;
 };
 
 const mockHotels = initializeMockHotels();
 
-export const hotelHandlers: RequestHandler[] = [
-  http.get<never, never, GetHotelsResponse>(
-    `${appConfig.backendUrl}${"/hotels" satisfies GetHotelsData["url"]}`,
-    ({ request }) => {
-      const url = new URL(request.url);
-      const page = parseInt(url.searchParams.get("page") || "1");
-      const pageSize = parseInt(url.searchParams.get("pageSize") || "10");
-      const start = (page - 1) * pageSize;
+export const hotelHandlerMap = {
+  [PATHS.hotelById]: [
+    http.get<GetHotelByIdData["path"], never, GetHotelByIdResponse>(
+      `${appConfig.backendUrl}${PATHS.hotelById}`,
+      async ({ params }) => {
+        await randomDelay(500, 1500);
 
-      const response: GetHotelsResponse = {
-        items: mockHotels.slice(start, start + pageSize),
-        totalItems: mockHotels.length,
-        totalPages: Math.ceil(mockHotels.length / pageSize),
-        currentPage: page,
-        pageSize,
-      };
+        const hotel = mockHotels.find((h) => h.id === params.id);
 
-      return HttpResponse.json(response);
-    },
-  ),
+        if (!hotel) {
+          return HttpResponse.error();
+        }
 
-  http.get<GetHotelByIdData["path"]>(
-    `${appConfig.backendUrl}/hotels/:id`,
-    ({ params }) => {
-      const hotel = mockHotels.find((h) => h.id === params.id);
+        return HttpResponse.json(hotel);
+      },
+    ),
+    http.put<
+      UpdateHotelData["path"],
+      UpdateHotelData["body"],
+      UpdateHotelResponse
+    >(
+      `${appConfig.backendUrl}${PATHS.hotelById}`,
+      async ({ params, request }) => {
+        await randomDelay(500, 1500);
 
-      return hotel
-        ? HttpResponse.json(hotel)
-        : new HttpResponse(null, { status: 404 });
-    },
-  ),
+        const { id } = params;
+        const body = await request.json();
 
-  http.post<never, HotelUpsert, Hotel>(
-    `${appConfig.backendUrl}${"/hotels" satisfies CreateHotelData["url"]}`,
-    async ({ request }) => {
-      const body = await request.json();
-      const newHotel: Hotel = {
-        id: nanoid(),
-        ...body,
-        createdAt: new Date().toISOString(),
-      };
-      mockHotels.push(newHotel);
+        const index = mockHotels.findIndex((h) => h.id === id);
+        const existingHotel = mockHotels[index];
 
-      return HttpResponse.json(newHotel, { status: 201 });
-    },
-  ),
+        if (index === -1 || !existingHotel) {
+          return HttpResponse.error();
+        }
 
-  http.put<UpdateHotelData["path"], HotelUpsert, Hotel>(
-    `${appConfig.backendUrl}/hotels/:id`,
-    async ({ params, request }) => {
-      const body = await request.json();
-      const index = mockHotels.findIndex((h) => h.id === params.id);
-      if (index === -1) {
-        return new HttpResponse(null, { status: 404 });
-      }
+        mockHotels[index] = {
+          ...existingHotel,
+          ...body,
+          id: existingHotel.id,
+          createdAt: existingHotel.createdAt,
+        };
 
-      mockHotels[index] = { ...mockHotels[index], ...body };
+        return HttpResponse.json(mockHotels[index]);
+      },
+    ),
+    http.delete<DeleteHotelData["path"], never, never>(
+      `${appConfig.backendUrl}${PATHS.hotelById}`,
+      async ({ params }) => {
+        await randomDelay(500, 1500);
 
-      return HttpResponse.json(mockHotels[index]);
-    },
-  ),
+        const index = mockHotels.findIndex((h) => h.id === params.id);
 
-  http.delete<DeleteHotelData["path"]>(
-    `${appConfig.backendUrl}/hotels/:id`,
-    ({ params }) => {
-      const index = mockHotels.findIndex((h) => h.id === params.id);
-      if (index === -1) {
-        return new HttpResponse(null, { status: 404 });
-      }
+        if (index === -1) {
+          return HttpResponse.error();
+        }
 
-      mockHotels.splice(index, 1);
+        mockHotels.splice(index, 1);
 
-      return new HttpResponse(null, { status: 204 });
-    },
-  ),
-];
+        return new HttpResponse(null, { status: 204 });
+      },
+    ),
+  ],
+  [PATHS.hotels]: [
+    http.get<never, never, GetHotelsResponse>(
+      `${appConfig.backendUrl}${PATHS.hotels}`,
+      async ({ request }) => {
+        await randomDelay(500, 1500);
+
+        const url = new URL(request.url);
+        const page = +(url.searchParams.get("page") || 1);
+        const pageSize = +(url.searchParams.get("pageSize") || 10);
+        const status = url.searchParams.get("status");
+
+        let filtered = mockHotels;
+
+        if (status) {
+          filtered = filtered.filter((h) => h.status === status);
+        }
+
+        const start = (page - 1) * pageSize;
+        const response: GetHotelsResponse = {
+          currentPage: page,
+          items: filtered.slice(start, start + pageSize),
+          pageSize,
+          totalItems: filtered.length,
+          totalPages: Math.ceil(filtered.length / pageSize),
+        };
+
+        return HttpResponse.json(response);
+      },
+    ),
+    http.post<never, CreateHotelData["body"], CreateHotelResponse>(
+      `${appConfig.backendUrl}${PATHS.hotels}`,
+      async ({ request }) => {
+        await randomDelay(500, 1500);
+
+        const body = await request.json();
+
+        const newHotel: Hotel = {
+          id: nanoid(),
+          ...body,
+          createdAt: new Date().toISOString(),
+        };
+
+        mockHotels.push(newHotel);
+
+        return HttpResponse.json(newHotel, { status: 201 });
+      },
+    ),
+  ],
+} as const;

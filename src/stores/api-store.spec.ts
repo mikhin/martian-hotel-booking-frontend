@@ -2,9 +2,9 @@ import { atom } from "nanostores";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
-  RequestResult,
-  Options,
   TDataShape as ClientTDataShape,
+  Options,
+  RequestResult,
 } from "@/api/client";
 
 import { createApiStore } from "./api-store";
@@ -29,7 +29,7 @@ describe("createApiStore", () => {
       return Promise.resolve({ data: mockData });
     }) as <ThrowOnError extends boolean = false>(
       options?: Options<ClientTDataShape, ThrowOnError>,
-    ) => RequestResult<{ 200: T }, unknown, ThrowOnError, "fields">;
+    ) => RequestResult<{ 200: T }, unknown, ThrowOnError>;
   };
 
   describe("Store Creation", () => {
@@ -38,8 +38,8 @@ describe("createApiStore", () => {
       const mockFetcher = createMockFetcher(mockData);
 
       const store = createApiStore(mockFetcher, {
-        storeKey: "test",
         mapToOptions: () => ({}),
+        storeKey: "test",
       });
 
       expect(store).toBeDefined();
@@ -72,9 +72,9 @@ describe("createApiStore", () => {
 
       const $param = atom("test");
       const store = createApiStore(mockFetcher, {
+        mapToOptions: () => ({}),
         params: [$param],
         storeKey: "test",
-        mapToOptions: () => ({}),
       });
 
       store.subscribe(() => {})();
@@ -117,8 +117,8 @@ describe("createApiStore", () => {
     it("should handle basic data fetching", async () => {
       const mockData = { test: "data" };
       const store = createApiStore(createMockFetcher(mockData), {
-        storeKey: "fetch-test",
         mapToOptions: () => ({}),
+        storeKey: "fetch-test",
       });
 
       const subscription = vi.fn();

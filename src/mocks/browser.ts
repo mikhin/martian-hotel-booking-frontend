@@ -1,5 +1,7 @@
 import { setupWorker } from "msw/browser";
 
-import { hotelHandlers } from "./handlers";
+import { hotelHandlerMap } from "./handlers";
 
-export const worker = setupWorker(...hotelHandlers);
+const handlers = Object.values(hotelHandlerMap).flat();
+
+export const worker = setupWorker(...handlers);
