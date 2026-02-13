@@ -54,15 +54,3 @@ jobs:
       - run: pnpm test
         env:
           NODE_OPTIONS: --max-old-space-size=4096
-
-      - if: github.event_name == 'pull_request'
-        run: |
-          pnpm dlx vercel@latest pull --yes --environment=preview --token=$VERCEL_TOKEN
-          pnpm dlx vercel@latest build --token=$VERCEL_TOKEN
-          pnpm dlx vercel@latest deploy --prebuilt --token=$VERCEL_TOKEN
-
-      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          pnpm dlx vercel@latest pull --yes --environment=production --token=$VERCEL_TOKEN
-          pnpm dlx vercel@latest build --prod --token=$VERCEL_TOKEN
-          pnpm dlx vercel@latest deploy --prebuilt --prod --token=$VERCEL_TOKEN
