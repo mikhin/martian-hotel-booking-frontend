@@ -1,0 +1,12 @@
+{
+  "pattern": "src/**/*.{ts,tsx}",
+  "ignore": [
+    "src/api/**",
+    "src/components/ui/**",
+    "src/mocks/**",
+    "**/node_modules/**"
+  ],
+  "minLines": 10,
+  "minTokens": 70,
+  "threshold": 10
+}
