@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# Martian Hotel Booking Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A demo project companion to the Evil Martians article [Guide to OpenAPI-Driven React: Generate Your Frontend, Don't Write It](https://evilmartians.com/chronicles/guide-to-openapi-driven-react-generate-your-frontend-don-t-write-it).
 
-Currently, two official plugins are available:
+[Live demo](https://martian-hotel-booking-frontend.vercel.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech stack
 
-## React Compiler
+- **React 19**, **TypeScript**, **Vite**
+- **[Hey API](https://heyapi.dev/)** — OpenAPI → SDK + Zod schemas
+- **[Nanostores](https://github.com/nanostores/nanostores)** + **[@nanostores/query](https://github.com/nanostores/query)** — state management
+- **[React Hook Form](https://react-hook-form.com/)** + **[Zod](https://zod.dev/)** — form validation
+- **[MSW](https://mswjs.io/)** — API mocking in development
+- **[Vitest](https://vitest.dev/)** + **[Testing Library](https://testing-library.com/)** — tests
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting started
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+pnpm install
+cp .env.development.local.example .env.development.local
+pnpm dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+By default the app runs with MSW mocks enabled (`VITE_API_MOCKS=true`). To connect to a real backend, update `VITE_BACKEND_URL` and set `VITE_API_MOCKS=false` in `.env.development.local`.
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+## Available scripts
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+| Script                | Description                             |
+| --------------------- | --------------------------------------- |
+| `pnpm dev`            | Start the Vite dev server               |
+| `pnpm build`          | Type-check and build for production     |
+| `pnpm preview`        | Serve the production build locally      |
+| `pnpm test`           | Run tests with Vitest                   |
+| `pnpm tsc`            | Run TypeScript type checking            |
+| `pnpm lint:check`     | Lint with ESLint                        |
+| `pnpm lint:fix`       | Lint and auto-fix with ESLint           |
+| `pnpm prettier:check` | Check formatting with Prettier          |
+| `pnpm prettier:write` | Format files with Prettier              |
+| `pnpm openapi-ts`     | Regenerate API client from OpenAPI spec |
+
+## API code generation
+
+Running `pnpm openapi-ts` fetches the OpenAPI spec from `https://martian-hotel-booking-api.vercel.app/output.yml` and regenerates `src/api/` with:
+
+- `sdk.gen.ts` — typed SDK functions for every endpoint
+- `types.gen.ts` — TypeScript types derived from the spec
+- `zod.gen.ts` — Zod schemas for runtime validation
+
+The configuration lives in `openapi-ts.config.ts`.
+
+## Project structure
+
+```
+src/
+├── api/          # Generated API client, types, and Zod schemas
+├── config/       # App-level configuration
+├── lib/          # Shared utilities
+├── mocks/        # MSW handlers for local development and tests
+├── stores/       # Nanostores — data fetching and app state
+├── App.tsx       # Root component
+├── HotelForm.tsx # Hotel booking form
+└── main.tsx      # Entry point
 ```
