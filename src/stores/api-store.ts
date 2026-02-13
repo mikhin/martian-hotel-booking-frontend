@@ -6,23 +6,38 @@ import {
 } from "@nanostores/query";
 import { type ReadableAtom } from "nanostores";
 
-import type { TDataShape as ClientTDataShape } from "@/api/client";
 import type { Options } from "@/api/sdk.gen";
 
 const [createFetcherStore] = nanoquery({});
 
+export type ApiStore<T> = FetcherStore<T>;
+
 export type StoreConfig<
-  TDataShape extends ClientTDataShape,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  F extends (...args: any[]) => any,
   TParams extends readonly ParamValue[],
 > = CommonSettings & {
   mapToOptions?: TParams extends readonly []
-    ? () => Options<TDataShape, false>
-    : (params: ParamsTuple<TParams>) => Options<TDataShape, false>;
+    ? () => Options<ExtractOptionsData<F>, false>
+    : (params: ParamsTuple<TParams>) => Options<ExtractOptionsData<F>, false>;
   params?: TParams;
   storeKey: string;
 };
 
-type ApiStore<T> = FetcherStore<T>;
+type ExtractOptionsData<F> = F extends (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options?: Options<infer TData, any>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+) => any
+  ? TData
+  : F extends (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        options: Options<infer TData, any>,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ) => any
+    ? TData
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      any;
 
 type ExtractResponseData<TResponses> = TResponses extends { 200: infer TData }
   ? TData
@@ -42,7 +57,6 @@ type ParamsTuple<T extends readonly ParamValue[]> = {
 type ParamValue = number | ReadableAtom<null | number | string> | string;
 
 export function createApiStore<
-  TDataShape extends ClientTDataShape,
   F extends (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: any[]
@@ -50,7 +64,7 @@ export function createApiStore<
   TParams extends readonly ParamValue[] = readonly [],
 >(
   fetcher: F,
-  config: StoreConfig<TDataShape, TParams>,
+  config: StoreConfig<F, TParams>,
 ): ApiStore<ExtractResponseData<InferResponses<F>>> {
   const storeParams: KeyInput = [config.storeKey, ...(config.params ?? [])];
 

@@ -10,12 +10,13 @@ const appConfig = getAppConfig();
 const enableMocking = async (): Promise<
   ServiceWorkerRegistration | undefined
 > => {
-  if (!appConfig.apiMocksEnabled) {
+  if (!appConfig.enableMocks) {
     return undefined;
   }
 
   try {
-    const { worker } = await import("./mocks/browser");
+    const { createWorker } = await import("./mocks/browser");
+    const worker = createWorker();
 
     return await worker.start({
       onUnhandledRequest: "bypass",

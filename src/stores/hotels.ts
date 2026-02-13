@@ -17,7 +17,7 @@ export const $hotelContent = createApiStore(getHotelById, {
       router?.route === "hotelEdit" ? router.params.id : null,
     ),
   ],
-  mapToOptions: (params: string[]) => ({
-    path: { id: params[0] ?? "" },
+  mapToOptions: ([id]) => ({
+    path: { id: id ?? "" },
   }),
 });

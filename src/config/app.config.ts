@@ -1,34 +1,41 @@
 import { z } from "zod";
 
-export interface ApplicationConfig {
-  apiMocksEnabled: boolean;
-  backendUrl: string;
-  envMode: string;
-  apiDocsUrl: string;
-}
-
-export const ApplicationConfigSchema = z.object({
-  apiMocksEnabled: z.boolean(),
-  backendUrl: z.string(),
-  envMode: z.string(),
+const AppConfigSchema = z.object({
+  backendUrl: z.string().min(1),
+  enableMocks: z
+    .string()
+    .transform((v) => v === "true")
+    .pipe(z.boolean()),
+  envMode: z.enum(["development", "production", "test"]),
   apiDocsUrl: z.string(),
 });
 
-export const getAppConfig = (): ApplicationConfig => {
-  const config = {
-    apiMocksEnabled: import.meta.env.VITE_API_MOCKS_ENABLED === "true",
-    backendUrl: import.meta.env.VITE_BACKEND_URL ?? "",
-    envMode: import.meta.env.MODE ?? "production",
-    apiDocsUrl: import.meta.env.VITE_API_DOCS_URL ?? "",
-  };
+export type ApplicationConfig = z.infer<typeof AppConfigSchema>;
 
+const getEnv = (key: string, fallback = ""): string => {
+  return import.meta.env[key] || fallback;
+};
+
+export const getAppConfig = (): ApplicationConfig => {
   try {
-    return ApplicationConfigSchema.parse(config);
+    return AppConfigSchema.parse({
+      backendUrl: getEnv("VITE_BACKEND_URL"),
+      enableMocks: getEnv("VITE_API_MOCKS", "false"),
+      envMode: getEnv("MODE", "development"),
+      apiDocsUrl: getEnv("VITE_API_DOCS_URL"),
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const issues = error.issues
+        .map((issue) => {
+          const path = issue.path.join(".") || "<root>";
+
+          return `${path}: ${issue.message}`;
+        })
+        .join("; ");
+
       throw new Error(
-        `[Application Config]: Environments validation failed. Please check environment variables.
-        Error message: ${error.message}`,
+        `Invalid application configuration from environment variables: ${issues}`,
       );
     }
 

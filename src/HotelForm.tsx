@@ -53,10 +53,27 @@ export function HotelForm() {
 
       alert("Hotel saved!");
       $hotels.invalidate();
-      // navigate('/hotels'); // Uncomment if you have routing
+      $router.set({ route: "hotelList" });
     } catch (error) {
-      // Handle validation errors if needed
       console.error(error);
+
+      if (
+        error instanceof Error &&
+        "errors" in error &&
+        typeof (error as Record<string, unknown>).errors === "object"
+      ) {
+        const validationErrors = (
+          error as { errors: Record<string, string> }
+        ).errors;
+
+        Object.entries(validationErrors).forEach(([field, message]) => {
+          form.setError(field as keyof HotelUpsert, {
+            type: "server",
+            message,
+          });
+        });
+      }
+
       alert("Failed to save hotel");
     } finally {
       setIsSubmitting(false);
