@@ -8,6 +8,21 @@ import { getAppConfig } from "@/config/app.config.ts";
 
 const appConfig = getAppConfig();
 
+const statusColors: Record<string, { bg: string; text: string }> = {
+  active: {
+    bg: "var(--color-status-active-bg)",
+    text: "var(--color-status-active-text)",
+  },
+  maintenance: {
+    bg: "var(--color-status-maintenance-bg)",
+    text: "var(--color-status-maintenance-text)",
+  },
+  closed: {
+    bg: "var(--color-status-closed-bg)",
+    text: "var(--color-status-closed-text)",
+  },
+};
+
 export function App() {
   const router = useStore($router);
   const { data, error, loading } = useStore($hotels);
@@ -21,87 +36,103 @@ export function App() {
 
   if (router?.route === "hotelEdit") {
     return (
-      <div style={{ padding: 20 }}>
+      <div>
         <button
           onClick={() => $router.set({ route: "hotelList" })}
-          style={{ marginBottom: 16, padding: "6px 12px", cursor: "pointer" }}
+          style={{ marginBottom: 16 }}
         >
           ← Back to List
         </button>
-        <h1>Edit Hotel</h1>
+        <h1
+          style={{
+            marginBottom: 32,
+          }}
+        >
+          Edit Hotel
+        </h1>
         <HotelForm />
       </div>
     );
   }
 
   if (loading) {
-    return <div style={{ padding: 20 }}>Loading...</div>;
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div style={{ padding: 20 }}>Error: {error.message}</div>;
+    return <div>Error: {error.message}</div>;
   }
 
   return (
-    <div style={{ padding: 20 }}>
+    <div>
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 20,
+          marginBottom: 32,
         }}
       >
         <h1>Hotels</h1>
       </div>
 
       <div style={{ display: "grid", gap: 16 }}>
-        {data?.items.map((hotel) => (
-          <div
-            key={hotel.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: 8,
-              padding: 16,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div>
-              <h2 style={{ margin: 0, marginBottom: 8 }}>{hotel.name}</h2>
-              <p style={{ margin: 0, color: "#666" }}>{hotel.location}</p>
-              <span
-                style={{
-                  display: "inline-block",
-                  marginTop: 8,
-                  padding: "4px 8px",
-                  background: hotel.status === "active" ? "#d4edda" : "#fff3cd",
-                  color: hotel.status === "active" ? "#155724" : "#856404",
-                  borderRadius: 4,
-                  fontSize: 12,
-                }}
-              >
-                {hotel.status}
-              </span>
-            </div>
-            <button
-              onClick={() =>
-                $router.set({ route: "hotelEdit", params: { id: hotel.id } })
-              }
+        {data?.items.map((hotel) => {
+          const colors = statusColors[hotel.status] ?? statusColors.active;
+          return (
+            <div
+              key={hotel.id}
+              className="hotel-card"
               style={{
-                padding: "6px 12px",
-                background: "#6c757d",
-                color: "white",
-                border: "none",
-                borderRadius: 4,
-                cursor: "pointer",
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                borderRadius: 8,
+                padding: 16,
+                boxShadow: "var(--shadow-sm)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
               }}
             >
-              Edit
-            </button>
-          </div>
-        ))}
+              <div>
+                <h2 style={{ marginBottom: 4 }}>{hotel.name}</h2>
+                <p
+                  style={{
+                    margin: 0,
+                    color: "var(--color-text-muted)",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  {hotel.location}
+                </p>
+                <span
+                  style={{
+                    display: "inline-block",
+                    marginTop: 8,
+                    padding: "3px 10px",
+                    background: colors.bg,
+                    color: colors.text,
+                    borderRadius: 9999,
+                    fontSize: "0.75rem",
+                    fontWeight: 500,
+                    textTransform: "capitalize",
+                  }}
+                >
+                  {hotel.status}
+                </span>
+              </div>
+              <button
+                className="btn-secondary"
+                onClick={() =>
+                  $router.set({ route: "hotelEdit", params: { id: hotel.id } })
+                }
+                style={{ padding: "6px 14px" }}
+              >
+                Edit
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

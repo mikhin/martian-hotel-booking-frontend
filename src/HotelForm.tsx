@@ -87,41 +87,55 @@ export function HotelForm() {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} style={{ maxWidth: 400 }}>
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ display: "block", marginBottom: 4 }}>Hotel Name</label>
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ display: "block", marginBottom: 6 }}>Hotel Name</label>
         <input
           {...form.register("name")}
           placeholder="Olympus Mons Resort"
-          style={{ width: "100%", padding: 8 }}
+          style={{ width: "100%", padding: "10px 12px" }}
         />
         {form.formState.errors.name && (
-          <span style={{ color: "red", fontSize: 12 }}>
+          <span
+            style={{
+              color: "var(--color-danger)",
+              fontSize: "0.8rem",
+              display: "block",
+              marginTop: 4,
+            }}
+          >
             {form.formState.errors.name.message}
           </span>
         )}
       </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ display: "block", marginBottom: 4 }}>
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ display: "block", marginBottom: 6 }}>
           Location on Mars
         </label>
         <input
           {...form.register("location")}
           placeholder="Valles Marineris"
-          style={{ width: "100%", padding: 8 }}
+          style={{ width: "100%", padding: "10px 12px" }}
         />
         {form.formState.errors.location && (
-          <span style={{ color: "red", fontSize: 12 }}>
+          <span
+            style={{
+              color: "var(--color-danger)",
+              fontSize: "0.8rem",
+              display: "block",
+              marginTop: 4,
+            }}
+          >
             {form.formState.errors.location.message}
           </span>
         )}
       </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ display: "block", marginBottom: 4 }}>Status</label>
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ display: "block", marginBottom: 6 }}>Status</label>
         <select
           {...form.register("status")}
-          style={{ width: "100%", padding: 8 }}
+          style={{ width: "100%", padding: "10px 12px" }}
         >
           <option value="">Select status</option>
           <option value="active">Active</option>
@@ -129,22 +143,26 @@ export function HotelForm() {
           <option value="closed">Closed</option>
         </select>
         {form.formState.errors.status && (
-          <span style={{ color: "red", fontSize: 12 }}>
+          <span
+            style={{
+              color: "var(--color-danger)",
+              fontSize: "0.8rem",
+              display: "block",
+              marginTop: 4,
+            }}
+          >
             {form.formState.errors.status.message}
           </span>
         )}
       </div>
 
       <button
+        className="btn-primary"
         type="submit"
         disabled={isSubmitting}
         style={{
-          padding: "8px 16px",
-          background: isSubmitting ? "#ccc" : "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: 4,
-          cursor: isSubmitting ? "not-allowed" : "pointer",
+          padding: "10px 20px",
+          fontWeight: 500,
         }}
       >
         {isSubmitting ? "Saving..." : "Save Hotel"}
