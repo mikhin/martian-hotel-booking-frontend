@@ -7,7 +7,6 @@ const AppConfigSchema = z.object({
     .transform((v) => v === "true")
     .pipe(z.boolean()),
   envMode: z.enum(["development", "production", "test"]),
-  apiDocsUrl: z.string(),
 });
 
 export type ApplicationConfig = z.infer<typeof AppConfigSchema>;
@@ -22,7 +21,6 @@ export const getAppConfig = (): ApplicationConfig => {
       backendUrl: getEnv("VITE_BACKEND_URL"),
       enableMocks: getEnv("VITE_API_MOCKS", "false"),
       envMode: getEnv("MODE", "development"),
-      apiDocsUrl: getEnv("VITE_API_DOCS_URL"),
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
