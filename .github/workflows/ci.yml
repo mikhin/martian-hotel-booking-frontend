@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+env:
+  SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
+  ACTIONS_CACHE_SEGMENT_SIZE: 64000000
+  ACTIONS_RUNTIME_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ACTIONS_CACHE_URL: ${{ secrets.ACTIONS_CACHE_URL }}
+  ZSTD_CLEVEL: 1
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/pnpm/store
+            ~/.cache/pnpm
+            node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm prettier:check
+      - run: pnpm lint:check
+      - run: pnpm tsc
+      - run: pnpm test
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+
+      - if: github.event_name == 'pull_request'
+        run: |
+          pnpm dlx vercel@latest pull --yes --environment=preview --token=$VERCEL_TOKEN
+          pnpm dlx vercel@latest build --token=$VERCEL_TOKEN
+          pnpm dlx vercel@latest deploy --prebuilt --token=$VERCEL_TOKEN
+
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          pnpm dlx vercel@latest pull --yes --environment=production --token=$VERCEL_TOKEN
+          pnpm dlx vercel@latest build --prod --token=$VERCEL_TOKEN
+          pnpm dlx vercel@latest deploy --prebuilt --prod --token=$VERCEL_TOKEN
