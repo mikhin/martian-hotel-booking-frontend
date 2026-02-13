@@ -9,18 +9,9 @@ import { getAppConfig } from "@/config/app.config.ts";
 const appConfig = getAppConfig();
 
 const statusColors: Record<string, { bg: string; text: string }> = {
-  active: {
-    bg: "var(--color-status-active-bg)",
-    text: "var(--color-status-active-text)",
-  },
-  maintenance: {
-    bg: "var(--color-status-maintenance-bg)",
-    text: "var(--color-status-maintenance-text)",
-  },
-  closed: {
-    bg: "var(--color-status-closed-bg)",
-    text: "var(--color-status-closed-text)",
-  },
+  active: { bg: "#dcfce7", text: "#166534" },
+  maintenance: { bg: "#fef3c7", text: "#92400e" },
+  closed: { bg: "#fee2e2", text: "#991b1b" },
 };
 
 export function App() {
@@ -84,22 +75,22 @@ export function App() {
               key={hotel.id}
               className="hotel-card"
               style={{
-                background: "var(--color-surface)",
-                border: "1px solid var(--color-border)",
+                background: "#fff",
+                border: "1px solid #e2e5e9",
                 borderRadius: 8,
                 padding: 16,
-                boxShadow: "var(--shadow-sm)",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
               }}
             >
               <div>
-                <h2 style={{ marginBottom: 4 }}>{hotel.name}</h2>
+                <h2 style={{ marginBottom: 4, marginTop: 0 }}>{hotel.name}</h2>
                 <p
                   style={{
                     margin: 0,
-                    color: "var(--color-text-muted)",
+                    color: "#6b7280",
                     fontSize: "0.9rem",
                   }}
                 >
@@ -126,7 +117,6 @@ export function App() {
                 onClick={() =>
                   $router.set({ route: "hotelEdit", params: { id: hotel.id } })
                 }
-                style={{ padding: "6px 14px" }}
               >
                 Edit
               </button>

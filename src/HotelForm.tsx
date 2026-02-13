@@ -97,7 +97,7 @@ export function HotelForm() {
         {form.formState.errors.name && (
           <span
             style={{
-              color: "var(--color-danger)",
+              color: "#dc2626",
               fontSize: "0.8rem",
               display: "block",
               marginTop: 4,
@@ -120,7 +120,7 @@ export function HotelForm() {
         {form.formState.errors.location && (
           <span
             style={{
-              color: "var(--color-danger)",
+              color: "#dc2626",
               fontSize: "0.8rem",
               display: "block",
               marginTop: 4,
@@ -145,7 +145,7 @@ export function HotelForm() {
         {form.formState.errors.status && (
           <span
             style={{
-              color: "var(--color-danger)",
+              color: "#dc2626",
               fontSize: "0.8rem",
               display: "block",
               marginTop: 4,
@@ -160,10 +160,7 @@ export function HotelForm() {
         className="btn-primary"
         type="submit"
         disabled={isSubmitting}
-        style={{
-          padding: "10px 20px",
-          fontWeight: 500,
-        }}
+        style={{ padding: "10px 20px" }}
       >
         {isSubmitting ? "Saving..." : "Save Hotel"}
       </button>
