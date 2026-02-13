@@ -1,6 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { $hotels } from "@/stores/hotels.ts";
 import { $router } from "@/stores/router.ts";
+import type { HotelStatus } from "@/api";
 import { HotelForm } from "./HotelForm";
 import { useEffect } from "react";
 import { client } from "./api/client.gen";
@@ -8,7 +9,7 @@ import { getAppConfig } from "@/config/app.config.ts";
 
 const appConfig = getAppConfig();
 
-const statusColors: Record<string, { bg: string; text: string }> = {
+const statusColors: Record<HotelStatus, { bg: string; text: string }> = {
   active: { bg: "#dcfce7", text: "#166534" },
   maintenance: { bg: "#fef3c7", text: "#92400e" },
   closed: { bg: "#fee2e2", text: "#991b1b" },
@@ -75,7 +76,7 @@ export function App() {
 
       <div style={{ display: "grid", gap: 16 }}>
         {data?.items.map((hotel) => {
-          const colors = statusColors[hotel.status] ?? statusColors.active;
+          const colors = statusColors[hotel.status];
           return (
             <div
               key={hotel.id}

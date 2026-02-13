@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { createHotel, type HotelUpsert, updateHotel } from "@/api";
-import { zHotelUpsert } from "@/api/zod.gen";
+import { zHotelStatus, zHotelUpsert } from "@/api/zod.gen";
 import { isValidationError } from "@/lib/is-validation-error";
 import { $hotelContent, $hotels } from "@/stores/hotels";
 import { $router } from "@/stores/router";
@@ -132,9 +132,11 @@ export function HotelForm() {
           style={{ width: "100%", padding: "10px 12px" }}
         >
           <option value="">Select status</option>
-          <option value="active">Active</option>
-          <option value="maintenance">Maintenance</option>
-          <option value="closed">Closed</option>
+          {zHotelStatus.options.map((status) => (
+            <option key={status} value={status}>
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </option>
+          ))}
         </select>
         <FieldError error={form.formState.errors.status} />
       </div>
