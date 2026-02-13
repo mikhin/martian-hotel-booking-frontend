@@ -25,7 +25,7 @@ export function App() {
     });
   }, []);
 
-  if (router?.route === "hotelEdit") {
+  if (router?.route === "hotelEdit" || router?.route === "hotelCreate") {
     return (
       <div>
         <button
@@ -39,7 +39,7 @@ export function App() {
             marginBottom: 32,
           }}
         >
-          Edit Hotel
+          {router.route === "hotelEdit" ? "Edit Hotel" : "Create Hotel"}
         </h1>
         <HotelForm />
       </div>
@@ -65,6 +65,12 @@ export function App() {
         }}
       >
         <h1>Hotels</h1>
+        <button
+          className="btn-primary"
+          onClick={() => $router.set({ route: "hotelCreate" })}
+        >
+          Create Hotel
+        </button>
       </div>
 
       <div style={{ display: "grid", gap: 16 }}>

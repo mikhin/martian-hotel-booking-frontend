@@ -9,6 +9,22 @@ import { isValidationError } from "@/lib/is-validation-error";
 import { $hotelContent, $hotels } from "@/stores/hotels";
 import { $router } from "@/stores/router";
 
+function FieldError({ error }: { error?: { message?: string } }) {
+  if (!error) return null;
+  return (
+    <span
+      style={{
+        color: "#dc2626",
+        fontSize: "0.8rem",
+        display: "block",
+        marginTop: 4,
+      }}
+    >
+      {error.message}
+    </span>
+  );
+}
+
 export function HotelForm() {
   const router = useStore($router);
   const hotelData = useStore($hotelContent);
@@ -94,18 +110,7 @@ export function HotelForm() {
           placeholder="Olympus Mons Resort"
           style={{ width: "100%", padding: "10px 12px" }}
         />
-        {form.formState.errors.name && (
-          <span
-            style={{
-              color: "#dc2626",
-              fontSize: "0.8rem",
-              display: "block",
-              marginTop: 4,
-            }}
-          >
-            {form.formState.errors.name.message}
-          </span>
-        )}
+        <FieldError error={form.formState.errors.name} />
       </div>
 
       <div style={{ marginBottom: 20 }}>
@@ -117,18 +122,7 @@ export function HotelForm() {
           placeholder="Valles Marineris"
           style={{ width: "100%", padding: "10px 12px" }}
         />
-        {form.formState.errors.location && (
-          <span
-            style={{
-              color: "#dc2626",
-              fontSize: "0.8rem",
-              display: "block",
-              marginTop: 4,
-            }}
-          >
-            {form.formState.errors.location.message}
-          </span>
-        )}
+        <FieldError error={form.formState.errors.location} />
       </div>
 
       <div style={{ marginBottom: 20 }}>
@@ -142,18 +136,7 @@ export function HotelForm() {
           <option value="maintenance">Maintenance</option>
           <option value="closed">Closed</option>
         </select>
-        {form.formState.errors.status && (
-          <span
-            style={{
-              color: "#dc2626",
-              fontSize: "0.8rem",
-              display: "block",
-              marginTop: 4,
-            }}
-          >
-            {form.formState.errors.status.message}
-          </span>
-        )}
+        <FieldError error={form.formState.errors.status} />
       </div>
 
       <button
