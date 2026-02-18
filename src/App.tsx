@@ -3,11 +3,6 @@ import { $hotels } from "@/stores/hotels.ts";
 import { $router } from "@/stores/router.ts";
 import type { HotelStatus } from "@/api";
 import { HotelForm } from "./HotelForm";
-import { useEffect } from "react";
-import { client } from "./api/client.gen";
-import { getAppConfig } from "@/config/app.config.ts";
-
-const appConfig = getAppConfig();
 
 const statusColors: Record<HotelStatus, { bg: string; text: string }> = {
   active: { bg: "#dcfce7", text: "#166534" },
@@ -18,13 +13,6 @@ const statusColors: Record<HotelStatus, { bg: string; text: string }> = {
 export function App() {
   const router = useStore($router);
   const { data, error, loading } = useStore($hotels);
-
-  useEffect(() => {
-    client.setConfig({
-      baseUrl: appConfig.backendUrl,
-      throwOnError: true,
-    });
-  }, []);
 
   if (router?.route === "hotelEdit" || router?.route === "hotelCreate") {
     return (

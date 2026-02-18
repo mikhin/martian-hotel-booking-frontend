@@ -1,11 +1,17 @@
 import { createRoot } from "react-dom/client";
 
 import { getAppConfig } from "@/config/app.config";
+import { client } from "./api/client.gen";
 
 import "./index.css";
 import { App } from "./App";
 
 const appConfig = getAppConfig();
+
+client.setConfig({
+  baseUrl: appConfig.backendUrl,
+  throwOnError: true,
+});
 
 const enableMocking = async (): Promise<
   ServiceWorkerRegistration | undefined
