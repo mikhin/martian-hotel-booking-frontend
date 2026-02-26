@@ -1,6 +1,6 @@
 # Martian Hotel Booking Frontend
 
-A demo project companion to the Evil Martians article [Guide to OpenAPI-Driven React: Generate Your Frontend, Don't Write It](https://evilmartians.com/chronicles/guide-to-openapi-driven-react-generate-your-frontend-don-t-write-it).
+A demo project companion to the Evil Martians article [Life's too short to hand-write API types: OpenAPI-driven React](https://evilmartians.com/chronicles/lifes-too-short-to-hand-write-api-types-openapi-driven-react).
 
 [Live demo](https://martian-hotel-booking-frontend.vercel.app/)
 
